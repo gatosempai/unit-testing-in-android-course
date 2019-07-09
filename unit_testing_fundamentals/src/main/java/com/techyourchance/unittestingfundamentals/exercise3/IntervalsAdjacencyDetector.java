@@ -11,12 +11,17 @@ public class IntervalsAdjacencyDetector {
         // this implementation contains two bugs:
         // 1. will erroneously report adjacent if interval1 and interval2 are the same
         // 2. will erroneously report adjacent if interval1 after interval2
-        return interval1.getEnd() == interval2.getStart() || interval1.getStart() >= interval2.getEnd()
-                || isSameIntervals(interval1, interval2);
+        return interval1.getEnd() == interval2.getStart() ||
+                (interval1.getStart() >= interval2.getEnd() && isNegative(interval1.getStart()))
+                && !isSameIntervals(interval1, interval2);
     }
 
     private boolean isSameIntervals(Interval interval1, Interval interval2) {
-        return interval1.getStart() == interval2.getStart() && interval1.getEnd() == interval2.getEnd();
+        return interval1.getStart() == interval2.getStart() || interval1.getEnd() == interval2.getEnd();
+    }
+
+    private boolean isNegative(int number) {
+        return !(number < 0);
     }
 
 }
