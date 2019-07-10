@@ -1,13 +1,13 @@
 package com.techyourchance.testdoublesfundamentals.exercise4;
 
 import com.techyourchance.testdoublesfundamentals.example4.networking.NetworkErrorException;
+import com.techyourchance.testdoublesfundamentals.exercise4.FetchUserProfileUseCaseSync.UseCaseResult;
 import com.techyourchance.testdoublesfundamentals.exercise4.networking.UserProfileHttpEndpointSync;
 import com.techyourchance.testdoublesfundamentals.exercise4.users.User;
 import com.techyourchance.testdoublesfundamentals.exercise4.users.UsersCache;
 
 import org.hamcrest.CoreMatchers;
 import org.jetbrains.annotations.Nullable;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,14 +32,11 @@ public class FetchUserProfileUseCaseSyncTest {
                 usersCacheTd);
     }
 
-    // fetch user sync success
     @Test
     public void fetchUserSync_success() {
         fetchUserProfileUseCaseSync.fetchUserProfileSync(USER_ID);
         assertThat(userProfileHttpEndpointSyncTd.userId, is(USER_ID));
     }
-
-    // fetch user sync user cached
 
     @Test
     public void fetchUserSync_success_userCachedReturn() {
@@ -50,16 +47,12 @@ public class FetchUserProfileUseCaseSyncTest {
         assertThat(cachedUser.getImageUrl(), is(IMAGE_URL));
     }
 
-    // fetch user sync generalError user not cached
-
     @Test
     public void fetchUserSync_generalError_userNotCachedReturn() {
         userProfileHttpEndpointSyncTd.isGeneralError = true;
         fetchUserProfileUseCaseSync.fetchUserProfileSync(USER_ID);
         assertThat(usersCacheTd.getUser(USER_ID), is(nullValue()));
     }
-
-    // fetch user sync authError user not cached
 
     @Test
     public void fetchUserSync_authError_userNotCachedReturn() {
@@ -68,7 +61,6 @@ public class FetchUserProfileUseCaseSyncTest {
         assertThat(usersCacheTd.getUser(USER_ID), is(nullValue()));
     }
 
-    // fetch user sync serverError user not cached
     @Test
     public void fetchUserSync_serverError_userNotCachedReturn() {
         userProfileHttpEndpointSyncTd.isServerError = true;
@@ -76,20 +68,40 @@ public class FetchUserProfileUseCaseSyncTest {
         assertThat(usersCacheTd.getUser(USER_ID), is(nullValue()));
     }
 
-    // fetch user sync success successReturned
-
     @Test
     public void fetchUserSync_success_successReturned() {
-        // TODO test not concluded
+        fetchUserProfileUseCaseSync.fetchUserProfileSync(USER_ID);
+        User cachedUser = usersCacheTd.getUser(USER_ID);
+        assertThat(cachedUser, is(CoreMatchers.<User>instanceOf(User.class)));
     }
 
+    @Test
+    public void fetchUserSync_serverError_failureReturned() {
+        userProfileHttpEndpointSyncTd.isServerError = true;
+        UseCaseResult result = fetchUserProfileUseCaseSync.fetchUserProfileSync(USER_ID);
+        assertThat(result, is(UseCaseResult.FAILURE));
+    }
 
-    // fetch user sync serverError failureReturned
-    // fetch user sync authError failureReturned
-    // fetch user sync generalError failureReturned
-    // fetch user sync networkError networkError returned
+    @Test
+    public void fetchUserSync_authError_failureReturned() {
+        userProfileHttpEndpointSyncTd.isAuthError = true;
+        UseCaseResult result = fetchUserProfileUseCaseSync.fetchUserProfileSync(USER_ID);
+        assertThat(result, is(UseCaseResult.FAILURE));
+    }
 
+    @Test
+    public void fetchUserSync_generalError_failureReturned() {
+        userProfileHttpEndpointSyncTd.isGeneralError = true;
+        UseCaseResult result = fetchUserProfileUseCaseSync.fetchUserProfileSync(USER_ID);
+        assertThat(result, is(UseCaseResult.FAILURE));
+    }
 
+    @Test
+    public void fetchUserSync_networkError_failureReturned() {
+        userProfileHttpEndpointSyncTd.isNetworkError = true;
+        UseCaseResult result = fetchUserProfileUseCaseSync.fetchUserProfileSync(USER_ID);
+        assertThat(result, is(UseCaseResult.NETWORK_ERROR));
+    }
 
     // ---------------------------------------------------------------------------------------------
     // Helper classes
